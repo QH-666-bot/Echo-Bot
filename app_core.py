@@ -219,7 +219,7 @@ def echo(event):
             num1 = int(cleaned_coin)
             num2 = int(amount_value)
             num3 = num1 / num2
-            if num3 != 145 :
+            if num3 != 150 :
                 line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text=f"金币与金额不符合，请计算后重发"))
@@ -243,7 +243,7 @@ def echo(event):
             num1 = int(cleaned_coin)
             num2 = int(amount_value)
             num3 = num1 / num2
-            if num3 != 145 :
+            if num3 != 150 :
                 line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text=f"金币与金额不符合，请计算后重发"))
