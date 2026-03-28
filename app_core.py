@@ -265,7 +265,7 @@ def echo(event):
         confirm_template_message = TemplateSendMessage(
             alt_text="检查订单",
             template=ConfirmTemplate(
-                text="请确认以下信息：\n\nID:"+end_id+"\n名字:"+name+"\n金额:"+end_coin+"\n币种:"+currency_value,
+                text="请确认以下信息：\n\nID:"+end_id+"\n名字:"+name+"\n金额:"+end_coin+"\n金币:"+r.get('addnum')+"\n币种:"+currency_value,
                 actions=[
                     PostbackAction(
                         label='确认',
