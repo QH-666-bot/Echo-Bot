@@ -76,16 +76,22 @@ def money(user,psd):
 
 #充值函数
 def Recharge(num,sentid):
-    url = "https://api.tongzhou666.com/replaceCharge/giveVoucher"
-    body = "erBanNo="+sentid+"&giveNum="+num+"&pwd=&token="+r.get('user_token')+"&uid=5191746"
+    url = "https://api.tongzhou666.com/replaceCharge/giveVoucherByType"
+    
+    body = {"erBanNo":sentid,
+            "currency":r.get('Recharge_type'),
+            "money":num,
+            "pwd":"",
+            "token":r.get('user_token'),
+            "uid":5191746}
     heard = {
         "Host": "api.tongzhou666.com",
-        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1",
-        "Referer": "https://api.tongzhou666.com/front/charge_withdraw/login.html",
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.3 Mobile/15E148 Safari/604.1",
+        "Referer": "https://api.tongzhou666.com/front/charge_withdraw/index.html?openId=nulll",
         "Origin": "https://api.tongzhou666.com"
         }
-    response_str = requests.post(url=url,data=body,headers=heard)
+    response_str = requests.post(url=url,json=body,headers=heard)
     response_data = json.loads(response_str.text)
     return(response_str.text)
     
@@ -120,10 +126,6 @@ def lookforward(userid):
     return(user_name)
 
 
-
-
-
-
 # LINE 聊天機器人的基本資料
 line_bot_api = LineBotApi(os.getenv('CHANNEL_ACCESS_TOKEN'))
 line_handler = WebhookHandler(os.getenv('CHANNEL_SECRET'))
@@ -150,7 +152,7 @@ def echo(event):
     user_id = event.source.user_id 
     # if user_states.get(user_id) == 'awaiting_confirmation':
     #     return
-    if "ID"and"名字"and"金币"and"金额"and"币种" in msg:
+    if "ID"and"金额"and"币种" in msg:
         
         if r.exists('发单人员'):
             line_bot_api.reply_message(
@@ -192,72 +194,57 @@ def echo(event):
          data[key] = value
 
         id_value = data['ID']
-        name_value = data['名字']
-        coin_value = data['金币']
         amount_value = data['金额']
         currency_value = data['币种']
-     
+      #     过滤特殊符号
         cleaned_id = id_value.replace('\n', '').replace(' ', '')
-        cleaned_coin = coin_value.replace('\n', '').replace(' ', '')
+        cleaned_coin = amount_value.replace('\n', '').replace(' ', '')
         
         end_id = cleaned_id
         end_coin = cleaned_coin
 
         if "台" in currency_value:
-            num1 = int(cleaned_coin)
-            num2 = int(amount_value)
-            num3 = num1 / num2
-            if num3 != 21 :
-                line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text=f"金币与金额不符合，请计算后重发"))
-                if r.getex('发单人员') == user_id :
-                    r.delete('发单人员')
-                return
+            r.set('充值ID', end_id)
+            r.set('金额', end_coin)
+            r.set('Recharge_type',"2")
+            addnum = str(int(end_coin) * 21)
+            r.set('addnum',addnum)
+
 
         if "马" in currency_value:
-            num1 = int(cleaned_coin)
-            num2 = int(amount_value)
-            num3 = num1 / num2
-            if num3 != 150 :
-                line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text=f"金币与金额不符合，请计算后重发"))
-                if r.getex('发单人员') == user_id :
-                    r.delete('发单人员')
-                return
+            r.set('充值ID', end_id)
+            r.set('金额', end_coin)
+            r.set('Recharge_type',"1")
+            addnum = str(int(end_coin) * 150)
+            r.set('addnum',addnum)
 
         if "新" in currency_value:
-            num1 = int(cleaned_coin)
-            num2 = int(amount_value)
-            num3 = num1 / num2
-            if num3 != 450 :
-                line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text=f"金币与金额不符合，请计算后重发"))
-                if r.getex('发单人员') == user_id :
-                    r.delete('发单人员')
-                return
+            r.set('充值ID', end_id)
+            r.set('金额', end_coin)
+            r.set('Recharge_type',"4")
+            addnum = str(int(end_coin) * 450)
+            r.set('addnum',addnum)
 
         if "馬" in currency_value:
-            num1 = int(cleaned_coin)
-            num2 = int(amount_value)
-            num3 = num1 / num2
-            if num3 != 150 :
-                line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text=f"金币与金额不符合，请计算后重发"))
-                if r.getex('发单人员') == user_id :
-                    r.delete('发单人员')
-                return
+            r.set('充值ID', end_id)
+            r.set('金额', end_coin)
+            r.set('Recharge_type',"1")
+            addnum = str(int(end_coin) * 150)
+            r.set('addnum',addnum)
 
+        if "港" in currency_value:
+            r.set('充值ID', end_id)
+            r.set('金额', end_coin)
+            r.set('Recharge_type',"3")
+            addnum = str(int(end_coin) * 85)
+            r.set('addnum',addnum)
 
 
 
         r.set('充值ID', end_id)
-        r.set('充值金币', end_coin)
+        r.set('金额', end_coin)
         print(r.get('充值ID'))
-        print(r.get('充值金币'))
+        print(r.get('金额'))
 
         login(user,psd)
         
@@ -266,7 +253,8 @@ def echo(event):
             if r.getex('发单人员') == user_id :
                     r.delete('发单人员')
                     r.delete('充值ID')
-                    r.delete('充值金币')  
+                    r.delete('充值金币')
+                    r.delete('Recharge_type')    
             line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text= "用户id不正确，请检查！"))
@@ -277,7 +265,7 @@ def echo(event):
         confirm_template_message = TemplateSendMessage(
             alt_text="检查订单",
             template=ConfirmTemplate(
-                text="请确认以下信息：\n\nID:"+end_id+"\n名字:"+name+"\n金币:"+end_coin+"\n金额:"+amount_value+"\n币种:"+currency_value,
+                text="请确认以下信息：\n\nID:"+end_id+"\n名字:"+name+"\n金额:"+end_coin+"\n币种:"+currency_value,
                 actions=[
                     PostbackAction(
                         label='确认',
@@ -364,6 +352,7 @@ def handle_postback(event):
             r.delete('充值ID')
             r.delete('充值金币')
             r.delete('发单人员')
+            r.delete('Recharge_type')
             return
         if r.exists('发单人员'):
                 line_bot_api.reply_message(
@@ -373,6 +362,7 @@ def handle_postback(event):
             r.delete('充值ID')
             r.delete('充值金币')
             r.delete('发单人员')
+            r.delete('Recharge_type')
      
 
         
@@ -384,19 +374,7 @@ def handle_postback(event):
         
         # 执行你的指定函数
         
-
-                
-
-
-
-
-
-
-
-
-
-
-        num = r.get('充值金币')
+        num = r.get('金额')
         sentid = r.get('充值ID')
         if r.exists('发单人员'):
             result = Recharge(num,sentid)
@@ -413,20 +391,24 @@ def handle_postback(event):
         if "success" in result2 :  
             
             balance = int(r.get(user_id))
-            addnum = int(r.get('充值金币'))
+            addnum = int(r.get('addnum'))
             newbalance = str(balance - addnum)
             r.set(user_id, newbalance)
    
             line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text=f"充值成功，您当前剩余额度为：" + r.get(user_id)))
-            r.delete('充值金币')
+            r.delete('金额')
             r.delete('充值ID')
             r.delete('发单人员')
+            r.delete('Recharge_type')
+            r.delete('addnum')
         else:
             r.delete('发单人员')
             r.delete('充值ID')
-            r.delete('充值金币')
+            r.delete('金额')
+            r.delete('Recharge_type')
+            r.delete('addnum')
             line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text=f"充值失败，请检查订单或联系管理员"))
